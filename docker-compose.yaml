@@ -25,6 +25,8 @@ services:
     build: .
     command: "./run_celery.sh"
     image: web
+    volumes:
+      - .:/code
     depends_on:
       - web
       - redis
