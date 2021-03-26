@@ -1,5 +1,12 @@
 # FB Comments Crawler
 
+## Project Specification
+
+- Crawler Tools: Selenium, Beautifulsoup4
+- Web Framework: Django
+- Task Queue: Celery and Redis as Message Broker
+
+
 ## Run
 
 ```
