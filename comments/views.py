@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from comments.helpers import get_post_comments_data
+from comments.helpers import get_post_comments_data, save_post_comment
 from comments.tasks import crawl_post_comments
 
 
@@ -16,7 +16,7 @@ def crawl_post_comments_api(request, pid, post_id):
         crawl_post_comments.delay(pid, post_id)
 
     if not data:
-        data = get_post_comments_data(post_id)
+        data = save_post_comment(pid, post_id)
     return JsonResponse(
         data=data,
         status=200
