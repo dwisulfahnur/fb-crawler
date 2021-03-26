@@ -71,7 +71,7 @@ Comment fields description:
 Response:
 
 ```json
-
+{
   "pid": "583729738378157",
   "post_id": "3660159894068444",
   "status": "completed",
