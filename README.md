@@ -40,6 +40,27 @@ Request sample for the existing post comments data
 curl -XGET  http://127.0.0.1:8000/api/comments/3660159894068444
 ```
 
+Response Data field description:
+
+| Field Name | Description                  |
+|------------|------------------------------|
+| pid        | PageID or UserId or Username |
+| post_id    | Post ID                      |
+| status     | Crawling status              |
+| comments   | List of Comment              |
+
+Comment fields description:
+
+| Field Name        | Description                                                |
+|-------------------|------------------------------------------------------------|
+| id_post           | Post ID                                                    |
+| parent_id_comment | Parent Comment ID (it mean the item is reply of a comment) |
+| id_comment        | Comment/Comment-Reply ID                                   |
+| user_comment      | Username of the comment/reply                              |
+| text_comment      | Text Comment                                               |
+| date_comment      | Date of the Comment                                        |
+| count_replies     | Amount of the comment replies                              |
+
 Response:
 
 ```json
