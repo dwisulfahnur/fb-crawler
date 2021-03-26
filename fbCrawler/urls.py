@@ -16,6 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from comments.views import get_post_commments_api, crawl_post_comments_api
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/comments/<str:post_id>', get_post_commments_api),
+    path('api/comments/<str:pid>_<str:post_id>/crawl', crawl_post_comments_api),
 ]
