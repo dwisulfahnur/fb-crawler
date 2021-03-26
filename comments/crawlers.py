@@ -1,23 +1,53 @@
 import logging
+import sys
 import time
+import traceback
 import urllib.parse as urlparse
 from urllib.parse import parse_qs
 
 from bs4 import BeautifulSoup
+from django.conf import settings
 from selenium import webdriver
+from selenium.webdriver import DesiredCapabilities
 
 from comments.helpers import save_post_comment
 
 logger = logging.getLogger(__name__)
 
 
+def get_selenium_driver():
+    options = webdriver.ChromeOptions()
+    options.headless = True
+    options.add_argument('--incognito')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    if settings.SELENIUM_REMOTE_EXECUTOR:
+        driver = webdriver.Remote(
+            command_executor=settings.SELENIUM_REMOTE_EXECUTOR,
+            desired_capabilities=DesiredCapabilities.CHROME,
+            options=options,
+        )
+        return driver
+    else:
+        driver = webdriver.Chrome(
+            executable_path="/usr/local/bin/chromedriver",
+            chrome_options=options
+        )
+        return driver
+
+
 def crawl_new_post_comments(pid, post_id):
     save_post_comment(pid, post_id)
     try:
         comments = get_post_comments(pid, post_id)
-        return save_post_comment(pid, post_id, data=comments)
+        save_post_comment(pid=pid, post_id=post_id, data=comments)
+        logger.info(f'Crawl process for post comments of {pid}_{post_id} is done, ({len(comments)}) collected')
+        return comments
     except:
-        return save_post_comment(pid, post_id, failed=True)
+        out = save_post_comment(pid, post_id, failed=True)
+        logger.error(traceback.print_exception(*sys.exc_info()))
+        logger.error(f'Crawl process for post comments of {pid}_{post_id} is Failed')
+        return out
 
 
 def get_qs_of_url(url):
@@ -26,12 +56,7 @@ def get_qs_of_url(url):
 
 
 def get_post_html(pid, post_id):
-    options = webdriver.ChromeOptions()
-    options.add_argument('--incognito')
-    # options.add_argument('--headless')
-    options.add_argument("--window-size=1920x1080")
-
-    browser = webdriver.Chrome(executable_path="/usr/local/bin/chromedriver", chrome_options=options)
+    browser = get_selenium_driver()
 
     url = f'https://www.facebook.com/story.php?story_fbid={post_id}&id={pid}'
     browser.get(url)
@@ -67,7 +92,8 @@ def get_post_html(pid, post_id):
         for btn in buttons:
             driver.execute_script('arguments[0].click();', btn)
             logger.info('Load More Comments...')
-        time.sleep(2)
+            time.sleep(0.2)
+        time.sleep(1)
         last_replies = get_show_reply_buttons(driver)
         if len(last_replies) > 0:
             load_reply_buttons(driver)

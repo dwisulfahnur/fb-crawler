@@ -15,7 +15,7 @@ def crawl_post_comments_api(request, pid, post_id):
     if not data or data.get('status') not in ['on_progress', 'completed']:
         crawl_post_comments.delay(pid, post_id)
 
-    if not data:
+    if not data.get('status'):
         data = save_post_comment(pid, post_id)
     return JsonResponse(
         data=data,
